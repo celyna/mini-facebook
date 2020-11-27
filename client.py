@@ -43,18 +43,16 @@ LOGIN
 '''
 
 def login():
-	usr = raw_input("Username [%s]: " % getpass.getuser())
-	if not user:
-		usr = getpass.getuser()
-
-	prompt = lambda: (getpass.getpass(), getpass.getpass('Retype password: '))
-
-	pswd, conf = prompt()
+	username = raw_input("Username [%s]: " % getpass.getuser())
+	if not username:
+		username = getpass.getuser()
+	someInput = lambda: (getpass.getpass(), getpass.getpass('Retype password: '))
+	pswd, conf = someInput()
 	while pswd != conf:
 		print('Wrong password, try again!')
-		pswd, conf = prompt()
+		pswd, conf = someInput()
 
-	return usr, pswd
+	return username, pswd
 
 while 1:
 	p, addr = s.recvfrom(1024)

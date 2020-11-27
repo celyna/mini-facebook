@@ -34,26 +34,23 @@ def client_thread(conn):
 	try:
 		conn.send('Welcome to the login page:\n')
 		conn.send('Enter your username: ')
-		usr = conn.recv(1024)
+		username = conn.recv(1024)
 		conn.send('Enter your password: ')
 		pswd = conn.recv(1024)
 
-		if usr not in clients or clients[usr]['password'] != pswd:
+		if username not in clients or clients[username]['password'] != pswd:
 			conn.send('Incorrect username or password.\n')
 			conn.close()
 		
-		clients[usr]['isOnline'] = True;
-		clients[usr]['connection'] = conn;
+		clients[username]['isOnline'] = True;
+		clients[username]['connection'] = conn;
 		
 		options = cleandoc("""
 		Choose an item from the menu:
 		1. Change Password
 		2. Logout
-
 		""")
-
 		conn.send(options + "\n\n")
-
 		while 1:
 			data = conn.recv(1024)
 			if not data:
@@ -66,13 +63,13 @@ def client_thread(conn):
 				conn.send('New password: ')
 				newPass = conn.recv(1024)
 				
-				if oldPass == clients[usr]['password']:
-					clients[usr]['password'] = newPass
+				if oldPass == clients[username]['password']:
+					clients[username]['password'] = newPass
 					conn.send('Password changed.\n')
 				else:
 					conn.send('Old passwords do not match.')
 			if data == '2': #logout
-				clients[usr]['isOnline'] = False
+				clients[username]['isOnline'] = False
 				conn.send('Logging out...\n')
 				conn.close()
 		
