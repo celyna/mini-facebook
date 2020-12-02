@@ -15,18 +15,21 @@ clients = {
 		'password': 'one',
 		'isOnline': False,
 		'connection': None,
+		'queue': [],
 	}, 
 
 	'celyna': {
 		'password': 'two',
 		'isOnline': False,
 		'connection': None,
+		'queue': [],
 	},
 
 	'person': {
 		'password': 'three',
 		'isOnline': False,
 		'connection': None,
+		'queue': [],
 	} 
 }
 
@@ -49,8 +52,13 @@ def client_thread(conn):
 		Choose an item from the menu:
 		1. Change Password
 		2. Logout
+		3. Send a Private Message
+		4. Send a Broadcast
+		5. View Messages
 		""")
+
 		conn.send(options + "\n\n")
+		conn.send('{} unread messages\n'.format(len(clients[username]['queue'])))
 		while 1:
 			data = conn.recv(1024)
 			if not data:
@@ -72,8 +80,42 @@ def client_thread(conn):
 				clients[username]['isOnline'] = False
 				conn.send('Logging out...\n')
 				conn.close()
-		
+
+			if data == '3': #sending a private message
+				conn.send('Send to: ')
+				receivr = conn.recv(1024)
+				conn.send('Message: ')
+				mssg = conn.recv(1024)
+				mssg = mssg + '\n'
+
+				if clients[receivr]['isOnline']:
+					conn.send('Message sent succesfully :)\n\n')
+					clients[username]['connection'].send('{}: {}'.format(username, mssg))
+					clients[username]['connection'].send(options)
+
+				else:
+					conn.send('Receiver is currently offline and will receive this message later!\n\n')
+					clients[username]['queue'].append({'From': username, 'Message': mssg})
+
+			if data == '4': #broadcast message
+				conn.send('Message to all: ')
+				mssg = conn.recv(1024)
+				mssg = mssg + '\n'
+				for users in clients:
+					if clients[users]['isOnline']:
+						clients[users]['connection'].send('{}: {}'.format(username, mssg))
+						clients[users]['connection'].send(options)
+
+				conn.send('Your message was broadcasted !!!')
+
+			if data == '5': #view ur messages
+				for mssgs in client[username]['queue']:
+					conn.send('{}: {}'.format(mssgs['from'], mssgs['message']))
+
+				del clients[username]['queue'][:]
+
 			conn.send('\n\n' + options + "\n\n")
+			conn.send('{} unread message(s)\n'.format(len(clients[username]['queue'])))
 
 	except:
 		print('Client has been disconnected.')
