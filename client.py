@@ -64,6 +64,11 @@ while 1:
 	reply = ''
 	if 'password' in p and 'Options' not in p:
 		reply = getpass.getpass('')
+
+	elif 'BeginTime' in p:
+		reply = str(time.time())
+	elif 'EndTime' in p:
+		reply = str(time.time())
 	else:
 		reply = raw_input()
 

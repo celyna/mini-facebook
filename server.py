@@ -42,6 +42,13 @@ def sendMsg(receivr, mssg, username): #function for sending a message directly t
 	if clients[receivr]['isOnline']:
 		clients[receivr]['connection'].send('{}: {}'.format(username, mssg))
 		clients[receivr]['connection'].send('\n\n')
+	
+		conn.send('EndTime')
+		endtime = conn.recv(1024)
+		print(endtime)
+
+		print('Time taken: ')
+		print(float(endtime)-float(starttime))
 	else:
 		conn.send('Receiver is currently offline and will receive this message later!\n\n')
 		clients[receivr]['queue'].append({'From': username, 'Message': mssg})
@@ -111,6 +118,11 @@ def client_thread(conn):
 				conn.send('Message: ')
 				mssg = conn.recv(1024)
 				mssg = mssg + '\n'
+				
+				conn.send('BeginTime') #timer for part 3
+				starttime = conn.recv(1024)
+				
+				print(starttime)
 
 				sendMsg(receivr, mssg, username)
 
